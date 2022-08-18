@@ -1,14 +1,13 @@
-import { useState } from 'react'
 import { isValidPlaceForShip, ShipStatus } from '../lib/game'
 import { Row } from './Row'
 
 type Props = {
   size: number
+  ships: ShipStatus[]
+  setShips: (arg: ShipStatus[]) => void
 }
 
-export const Gameboard = ({ size }: Props) => {
-  const [ships, setShips] = useState<ShipStatus[]>([])
-
+export const Gameboard = ({ size, ships, setShips }: Props) => {
   const placeShip = (ship: ShipStatus) => {
     if (
       !ships.some((placedShip) => placedShip.id === ship.id) &&

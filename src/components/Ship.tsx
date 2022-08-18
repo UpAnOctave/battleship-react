@@ -5,7 +5,6 @@ type Props = {
   size: number
   orientation?: 'x' | 'y'
   onClick?: (id: number) => void
-  isVisibilityForced?: boolean
 }
 
 export const Ship = ({
@@ -13,28 +12,34 @@ export const Ship = ({
   size,
   orientation = 'y',
   onClick = () => null,
-  isVisibilityForced = false,
 }: Props) => {
   const [isVisible, setIsVisible] = useState(true)
+  const [dragOffset, setDragOffset] = useState(0)
   const body = Array.from(Array(size))
   const handleDragStart = (event: React.DragEvent) => {
     event.dataTransfer?.setData('id', `${id}`)
     event.dataTransfer?.setData('size', `${size}`)
     event.dataTransfer?.setData('orientation', orientation)
+    event.dataTransfer?.setData('offset', `${dragOffset}`)
   }
 
   return (
     <div
       className={`flex gap-1 min-w-fit ${
         orientation === 'y' ? 'flex-col' : 'flex-row'
-      } ${isVisibilityForced || isVisible ? '' : 'invisible'}`}
+      } ${isVisible ? '' : 'invisible'}`}
       draggable
       onDragStart={handleDragStart}
       onDrag={() => setIsVisible(false)}
+      onDragEnd={() => setIsVisible(true)}
       onClick={() => onClick(id)}
     >
       {body.map((item, index) => (
-        <div key={index} className="h-12 w-12 bg-gray-500 z-10"></div>
+        <div
+          key={index}
+          className="h-12 w-12 bg-gray-500 z-10"
+          onMouseDown={() => setDragOffset(index)}
+        ></div>
       ))}
     </div>
   )

@@ -22,7 +22,11 @@ export const isValidPlaceForShip = (ship: ShipStatus, ships: ShipStatus[]) => {
   const shipCells = getCellsOcuppiedByShip(ship)
   if (
     shipCells.some(
-      (cell) => cell.x >= GAMEBOARD_SIZE || cell.y >= GAMEBOARD_SIZE
+      (cell) =>
+        cell.x >= GAMEBOARD_SIZE ||
+        cell.x < 0 ||
+        cell.y >= GAMEBOARD_SIZE ||
+        cell.y < 0
     )
   ) {
     return false
@@ -32,7 +36,11 @@ export const isValidPlaceForShip = (ship: ShipStatus, ships: ShipStatus[]) => {
     ships.some((otherShip) =>
       getCellsOcuppiedByShip(otherShip).some((otherShipsCell) =>
         shipCells.some(
-          (cell) => cell.x === otherShipsCell.x && cell.y === otherShipsCell.y
+          (cell) =>
+            cell.x >= otherShipsCell.x - 1 &&
+            cell.x <= otherShipsCell.x + 1 &&
+            cell.y >= otherShipsCell.y - 1 &&
+            cell.y <= otherShipsCell.y + 1
         )
       )
     )

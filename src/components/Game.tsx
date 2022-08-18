@@ -1,21 +1,20 @@
-import { GAMEBOARD_SIZE } from '../constants/settings'
-import {
-  BATTLESHIP,
-  CARRIER,
-  CRUISER,
-  DESTROYER,
-  SUBMARINE,
-} from '../constants/ships'
-import { Gameboard } from './Gameboard'
-import { ShipsContainer } from './ShipsContainer'
+import { useState } from 'react'
+import { Battlefield } from './Battlefield'
+import { ShipPlacementScreen } from './ShipPlacementScreen'
 
 export const Game = () => {
+  const [isGameStarted, setIsGameStarted] = useState(false)
+  const handleDonePlacing = () => {
+    setIsGameStarted(true)
+  }
+
   return (
-    <div className="flex justify-around">
-      <ShipsContainer
-        ships={[CARRIER, BATTLESHIP, CRUISER, SUBMARINE, DESTROYER]}
-      />
-      <Gameboard size={GAMEBOARD_SIZE} />
+    <div>
+      {isGameStarted ? (
+        <Battlefield />
+      ) : (
+        <ShipPlacementScreen handleDonePlacing={handleDonePlacing} />
+      )}
     </div>
   )
 }
