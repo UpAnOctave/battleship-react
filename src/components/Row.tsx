@@ -1,15 +1,25 @@
-import { ShipStatus } from '../lib/game'
+import { ShipData } from '../lib/game'
 import { Cell } from './Cell'
 
 type Props = {
   y: number
   size: number
-  ships: ShipStatus[]
-  placeShip: (ship: ShipStatus) => void
-  rotateShip: (id: number) => void
+  ships: ShipData[]
+  placeShip?: (ship: ShipData) => void
+  rotateShip?: (id: number) => void
+  attackShip?: (hit: boolean, id?: number) => void
+  isActive?: boolean
 }
 
-export const Row = ({ y, size, ships, placeShip, rotateShip }: Props) => {
+export const Row = ({
+  y,
+  size,
+  ships,
+  placeShip,
+  rotateShip,
+  attackShip,
+  isActive = false,
+}: Props) => {
   const row = Array.from(Array(size))
 
   return (
@@ -22,6 +32,8 @@ export const Row = ({ y, size, ships, placeShip, rotateShip }: Props) => {
           ships={ships}
           placeShip={placeShip}
           rotateShip={rotateShip}
+          attackShip={attackShip}
+          isActive={isActive}
         />
       ))}
     </div>

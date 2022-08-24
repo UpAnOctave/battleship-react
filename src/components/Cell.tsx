@@ -1,20 +1,50 @@
-import React from 'react'
-import { getCellsOcuppiedByShip, ShipStatus } from '../lib/game'
+import React, { useEffect, useState } from 'react'
+import { getCellsOcuppiedByShip, ShipData } from '../lib/game'
 import { Ship } from './Ship'
 
 type Props = {
   x: number
   y: number
-  ships: ShipStatus[]
-  placeShip: (ship: ShipStatus) => void
-  rotateShip: (id: number) => void
+  ships: ShipData[]
+  placeShip?: (ship: ShipData) => void
+  rotateShip?: (id: number) => void
+  attackShip?: (hit: boolean, id?: number) => void
+  isActive?: boolean
 }
 
-export const Cell = ({ x, y, ships, placeShip, rotateShip }: Props) => {
-  const containsShip = ships.some((ship) =>
-    getCellsOcuppiedByShip(ship).some((cell) => cell.x === x && cell.y === y)
+type CellStatus = 'water' | 'ship' | 'hit' | 'miss'
+
+export const Cell = ({
+  x,
+  y,
+  ships,
+  placeShip,
+  rotateShip,
+  attackShip,
+  isActive = false,
+}: Props) => {
+  const [status, setStatus] = useState<CellStatus>(
+    ships.some((ship) =>
+      getCellsOcuppiedByShip(ship).some((cell) => cell.x === x && cell.y === y)
+    )
+      ? 'ship'
+      : 'water'
   )
   const ship = ships.find((ship) => ship.x === x && ship.y === y)
+
+  useEffect(() => {
+    if (placeShip || rotateShip) {
+      setStatus(
+        ships.some((placedShip) =>
+          getCellsOcuppiedByShip(placedShip).some(
+            (cell) => cell.x === x && cell.y === y
+          )
+        )
+          ? 'ship'
+          : 'water'
+      )
+    }
+  }, [ships, placeShip, rotateShip, x, y])
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault()
@@ -25,22 +55,54 @@ export const Cell = ({ x, y, ships, placeShip, rotateShip }: Props) => {
     const size = Number(event.dataTransfer.getData('size'))
     const orientation = event.dataTransfer.getData('orientation') as 'x' | 'y'
     const offset = Number(event.dataTransfer.getData('offset'))
-    if (orientation === 'x') {
+    if (orientation === 'x' && placeShip) {
       placeShip({ id, x: x - offset, y, size, orientation })
-    } else {
+    } else if (placeShip) {
       placeShip({ id, x, y: y - offset, size, orientation })
+    }
+  }
+
+  const handleClick = () => {
+    if (!attackShip || !isActive) {
+      return
+    }
+
+    if (status === 'miss' || status === 'hit') {
+      return
+    }
+
+    if (status === 'water') {
+      setStatus('miss')
+      attackShip(false)
+    }
+
+    if (status === 'ship') {
+      const attackedShip = ships.find((ship) =>
+        getCellsOcuppiedByShip(ship).some(
+          (cell) => cell.x === x && cell.y === y
+        )
+      )
+      setStatus('hit')
+      attackShip(true, attackedShip?.id)
     }
   }
 
   return (
     <div
       className={`h-12 w-12 text-center text-white relative select-none ${
-        containsShip ? 'bg-amber-300' : 'bg-black'
+        status === 'ship'
+          ? 'bg-amber-300'
+          : status === 'hit'
+          ? 'bg-red-600'
+          : status === 'miss'
+          ? 'bg-neutral-500'
+          : 'bg-black'
       }`}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      onClick={handleClick}
     >
-      {ship ? (
+      {ship && placeShip ? (
         <Ship
           id={ship.id}
           size={ship.size}

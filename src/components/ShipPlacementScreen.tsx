@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react'
 import { GAMEBOARD_SIZE } from '../constants/settings'
 import { SHIPS } from '../constants/ships'
-import { ShipStatus } from '../lib/game'
+import { generateRandomLayout, ShipData } from '../lib/game'
 import { Gameboard } from './Gameboard'
 import { ShipsContainer } from './ShipsContainer'
 
 type Props = {
+  ships: ShipData[]
+  setShips: (arg: ShipData[]) => void
   handleDonePlacing: () => void
 }
 
-export const ShipPlacementScreen = ({ handleDonePlacing }: Props) => {
-  const [ships, setShips] = useState<ShipStatus[]>([])
+export const ShipPlacementScreen = ({
+  ships,
+  setShips,
+  handleDonePlacing,
+}: Props) => {
   const [availableShips, setAvailableShips] = useState(SHIPS)
 
   useEffect(() => {
@@ -43,6 +48,13 @@ export const ShipPlacementScreen = ({ handleDonePlacing }: Props) => {
         handleDrop={removeShipFromGameboard}
       />
       <Gameboard size={GAMEBOARD_SIZE} ships={ships} setShips={setShips} />
+      <button
+        onClick={() => {
+          setShips(generateRandomLayout(SHIPS.length, GAMEBOARD_SIZE))
+        }}
+      >
+        RANDOM
+      </button>
       <button
         onClick={() => {
           setShips([])
